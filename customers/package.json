@@ -1,0 +1,16 @@
+{
+  "name": "customers",
+  "version": "1.0.0",
+  "description": "Uma api em node para gerenciar banco de dados",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Apolo Lopes",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "1.19.0",
+    "express": "4.17.1",
+    "nedb": "1.8.0"
+  }
+}

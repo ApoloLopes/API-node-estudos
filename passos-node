@@ -1,0 +1,127 @@
+passos node
+
+1 - va na pasta de criação do projeto e execute npm init
+
+package name: Nome do projeto. (Padrão: nome da pasta onde o comando foi executado)
+version: Versão do projeto. (Padrão: 1.0.0)
+description: Uma descrição para o projeto.
+entry point: Arquivo padrão que será utilizado para executar a aplicação. (Padrão: index.js)
+test command: Comando para executar os testes da aplicação.
+git repository: URL do repositório git onde o código-fonte da aplicação será armazenado.
+keyword: Palavras-chave relevantes para ajudar as pessoas a encontrarem o seu projeto.
+author: Autor do projeto.
+license Tipo de licença do projeto. (Padrão: ISC)
+
+2 - adicione as dependencias que serão utilizadas no projeto pelo arquivo json. No nosso caso, utilizamos: body-parser 1.12.3, express 4.12.3, nedb 1.1.2.
+
+
+"License" : "MIT",
+"dependencies": {
+  
+  "body-parser" : "1.12.3",
+  "express" : "4.12.3",   
+  "nedb" : "1.1.2"
+}
+
+3 - dentro da pasta <recurso> crie as pastas <src> e <resources<podeinserir um banco de dados json>
+
+4 - dentro da pasta <src> crie as pastas <configurations> <controllers> <routes> e o arquivo <entry-point.js>
+
+5 - dentro de configurations insira o arquivo database.js e express.js
+
+6 - dentro de controllers adicione os arquivos <recurso>-controller.js
+
+7 - dentro de routes adicione <recurso>-route.js
+
+8 - comece pela configuração do express
+
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const routes = require('../routes/customer-route')
+const path = require('path')
+
+app.set('clientPath', path.join(__dirname, '../..', 'client'))
+
+app.use(express.static(app.get('clientPath')))
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+
+routes(app)
+
+module.exports = app
+
+9 - configure o database.js
+
+const Datastore = require('nedb')
+const dbName = './resources/database/<recurso>.db'
+let neDB
+
+if (!neDB) {
+    neDB = new Datastore({
+        filename: dbName,
+        autoload: true
+    })
+    console.log(`[<recurso> Application - ${(new Date()).toISOString()}] This database [${dbName}] is UP`)
+}
+
+module.exports = neDB
+
+10 - configurar o <entry-point>.js
+
+const http = require('http')
+const app = require('./configurations/express')
+
+http.createServer(app).listen(3000, function () {
+    console.log(`[Customers Application - ${(new Date()).toISOString()}] The server is running on port: ${this.address().port}`)
+})
+
+11 - configurre o arquivo <recurso-routes.js> adicionando os dois primeiros metodos: .get e post aqui voce delcara os metodos para depois implementar os metodos no controller 
+
+const api = require('../controllers/<recurso-controller')
+
+module.exports = (app) => {
+    app.route('/recurso')
+        .get(api.findAll)
+        .post(api.save)
+
+}
+
+12 - implemente os metodos findAll e save em <recurso>-controller.js
+
+const neDB = require('../configurations/database')
+const api = {}
+
+api.findAll = (request, response) => {
+    neDB.find({}).sort({ name: 1 }).exec((exception, <recurso>) => {
+        if (exception) {
+            const setence = 'Deu ruim na tentativa de listar todos os customers!'
+            console.log(setence, exception)
+            response.status(exception.status | 400)
+            response.json({ 'mensagem': setence })
+        }
+        response.json(<recurso>)
+    })
+}
+
+api.save = (request, response) => {
+    const canonical = request.body
+    neDB.insert(canonical, (exception, <recurso><singular>) => {
+        if (exception) {
+            const setence = 'Deu ruim na tentativa de adicionar customer!'
+            console.log(setence, exception)
+            response.status(exception.status | 400)
+            response.json({ 'mensagem': setence })
+        }
+        response.status(201)
+        response.json(<recurso><singular>)
+    })
+}
+
+module.exports = api
+
+
+13 - para instalar os modulos do node - npm install 
+   - para rodar a aplicação - node src/server.js
+
+
